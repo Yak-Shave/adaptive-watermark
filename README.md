@@ -1,40 +1,65 @@
-🪒 Adaptive Watermark
+# Adaptive Watermark
 
-Stamps a logo onto a batch of images and automatically picks light or dark colors for each image by measuring the background directly underneath it.
-Features
+Stamps your logo onto a batch of images and picks light or dark for each one by looking at the background under it.
 
-    Smart Sampling: Measures background brightness only where the logo actually sits (not the whole corner).
+A thin, script-style logo is easy to lose against a busy or mid-toned photo, and a hard outline turns a thin line into a blob. So every image is measured on its own, only where the logo will sit. The brightness under the logo's shape decides the stamp colour, and where contrast is marginal a soft glow in the opposite colour goes behind the stroke. The stroke itself is never outlined or thickened.
 
-    Dynamic Glow: Automatically adds a soft shadow on mid-toned or busy backgrounds so thin logos never vanish.
+## Requirements
 
-    In-Place Safety Net: Automatically backs up original images into yakshave_data/ before any changes are made. Full --restore support included.
+- Python 3.10 or newer
+- `pillow` (required)
+- `PySide6` (optional, only for the preview window; `--batch` works without it)
 
-    GUI & Batch Mode: Interactive PySide6 preview window or lightweight headless --batch execution without Qt dependencies.
+Runs on Windows, macOS and Linux.
 
-Requirements
+## Setup
 
-    Python 3.10+
+```bash
+pip install pillow PySide6
+```
 
-    pillow (required)
+Leave out `PySide6` if you only plan to use `--batch`.
 
-    PySide6 (optional, for GUI preview)
+Put your logo next to `watermark.py` and name it `logo.png` (`.webp`, `.jpg` and `.bmp` also work). A PNG with a transparent background gives the best result.
 
-Quick Start
+## Usage
 
-    Place your logo.png next to the script.
+```bash
+python watermark.py ./my-images             # preview window: pick corner, size, opacity
+python watermark.py ./my-images --batch     # stamp the whole folder, no window
+python watermark.py ./my-images --dry-run   # list what would be stamped, write nothing
+python watermark.py ./my-images --restore   # put the original files back
+```
 
-    Run live preview or batch process:
+| Argument | What it does |
+|---|---|
+| `folder` | Folder to work on |
+| `--subfolders` | Include subfolders |
+| `--batch` | Stamp everything and exit, without opening a window |
+| `--restore` | Copy the backed-up originals back, and exit |
+| `--logo PATH` | Logo image (default: `logo.png` next to the script) |
+| `--anchor ...` | `top-left` to `bottom-right`, nine positions (default: `bottom-left`) |
+| `--size N` | Logo width in percent of the image width (default: 12) |
+| `--margin N` | Distance from the edge in percent of the image width (default: 2) |
+| `--opacity N` | Stamp opacity in percent (default: 85) |
+| `--color ...` | `auto` (measure the background), `light`, `dark`, or a grey value 0-255 |
+| `--dry-run` | List what would be stamped without writing anything |
 
-python watermark.py ./my-images             # Preview window
-python watermark.py ./my-images --batch     # Batch mode (no GUI)
-python watermark.py ./my-images --restore   # Undo and restore original images
+## Notes
 
-🧡 Support Yak Shave on Patreon
+- Images are stamped in place. Before the first stamp, every original is copied into `yakshave_data/` next to the script, keeping its subfolder structure, so `--restore` puts each file back where it came from. An existing backup is never overwritten.
+- The tool does not notice an image that is already stamped. Run it twice and the logo goes on twice. Restore first, then stamp again with new settings.
+- PNGs with transparency come back without it. JPEGs and WebPs are re-saved after stamping (JPEG at quality 95), so expect the usual small generation loss.
+- Batch mode prints one line per image as it goes, so you can watch progress live.
 
-If you find these tools helpful and want to streamline your workflows, consider supporting the project!
+## Yak Shave Launcher
 
-    Tier 1 (Scripts & Snippets): Standalone Python tools and updates ("as-is").
+Drop `watermark.py` into a folder the [Yak Shave Launcher](https://github.com/Yak-Shave/yakshave-launcher) scans. The header at the top of the file is read automatically and the tool shows up as a card in the Images category.
 
-    Tier 2 (Applications & Suites): Complete application suites, toolchains, and deep-dive walkthroughs.
+## About Yak Shave
 
-👉 Join Patreon: https://www.patreon.com/cw/YakShave
+Lightweight, no-bullshit CLI tools and Python scripts for power users. Every tool is a single file. New tools appear on [Patreon](https://www.patreon.com/cw/YakShave) first and reach GitHub a little later.
+
+## License
+
+MIT
